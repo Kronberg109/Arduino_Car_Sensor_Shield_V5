@@ -16,7 +16,10 @@ const int echo = 7;
 float duration_us, distance_cm;
 int obst;
 int obstacle;
-const int threshold = 50;
+const int threshold = 20;
+
+//Servo Variables
+int rot_modif = 0;
 
 void setup(){
 
@@ -46,7 +49,6 @@ void loop(){
   else{
     obst = checkLeft();
     if(obst == 0){
-      
       turnLeft();
     }
     else{
@@ -84,12 +86,12 @@ void turnRight(){
     digitalWrite(RightMotorForward, LOW);
     digitalWrite(RightMotorBackward, HIGH);
 
-    //Rotate Until Nothing Is In Front
+    //Rotate Until Nothing Is In Front + 100 ms
     while(obstacle == 1){
-      
       obstacle = sensDistance();
-      
     }
+
+    delay(50);
      
 }
 
@@ -106,20 +108,26 @@ void turnLeft(){
     digitalWrite(RightMotorForward, HIGH);
     digitalWrite(RightMotorBackward, LOW);
 
-    //Rotate Until Nothing Is In Front
+    //Rotate Until Nothing Is In Front + 100 ms
     while(obstacle == 1){
-      
       obstacle = sensDistance();
-      
     }
+    
+    delay(50);
      
 }
 
 int checkStraight(){
   
   //Turn Servo/Sensor
-  servo.write(90);
-  delay(100);
+  servo.write(60 + rot_modif);
+  delay(250);
+
+  //Higher FOV
+  rot_modif += 30;
+  if(rot_modif > 60){
+    rot_modif = 0;
+  }
 
   //Use Sensor
   obst = sensDistance();
@@ -130,7 +138,7 @@ int checkRight(){
   
   //Turn Servo/Sensor
   servo.write(180);
-  delay(100);
+  delay(250);
 
   //Use Sensor
   obst = sensDistance();
@@ -163,7 +171,7 @@ int sensDistance(){
   Serial.println(distance_cm);
 
   //Check If Obstacle Is Close And Return
-  if(distance_cm > 50){
+  if(distance_cm > threshold){
     return 0;  
   }
   else{
